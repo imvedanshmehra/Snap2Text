@@ -20,7 +20,7 @@ const htmlChildren = Array.from(container.children).map((childElement) => {
 document.body.appendChild(rootNode);
 const root = createRoot(rootNode);
 root.render(
-  <ScreenCapture onEndCapture={(screenCapture) => console.log(screenCapture)}>
+  <ScreenCapture>
     <div dangerouslySetInnerHTML={{ __html: htmlChildren.join('') }} />
   </ScreenCapture>
 );

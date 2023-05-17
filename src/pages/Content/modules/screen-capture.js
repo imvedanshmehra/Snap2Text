@@ -1,203 +1,105 @@
-import React, { useEffect, useState } from 'react';
-import html2canvas from 'html2canvas';
+import React, { useState } from 'react';
 import '../content.styles.css';
+import { Popover, Progress } from 'antd';
+import html2canvas from 'html2canvas';
+import Tesseract from 'tesseract.js';
+import TextArea from 'antd/es/input/TextArea';
 
-const ScreenCapture = ({ onEndCapture, children }) => {
-  const [state, setState] = useState({
-    on: false,
-    startX: 0,
-    startY: 0,
-    endX: 0,
-    endY: 0,
-    crossHairsTop: 0,
-    crossHairsLeft: 0,
-    isMouseDown: false,
-    windowWidth: 0,
-    windowHeight: 0,
-    borderWidth: 0,
-    cropPositionTop: 0,
-    cropPositionLeft: 0,
-    cropWidth: 0,
-    cropHeigth: 0,
-  });
+const ScreenCapture = ({ children }) => {
+  const [selection, setSelection] = useState(null);
+  const [imageURL, setImageURL] = useState('');
+  const [ocr, setOCR] = useState({});
 
-  useEffect(() => {
-    handleWindowResize();
-    window.addEventListener('resize', handleWindowResize);
-    handStartCapture();
+  const handleMouseDown = (event) => {
+    const startX = event.clientX;
+    const startY = event.clientY;
+    setSelection({ startX, startY });
+  };
 
-    return () => window.removeEventListener('resize', handleWindowResize);
-  }, []);
+  const handleMouseMove = (event) => {
+    if (!selection) return;
 
-  const handleWindowResize = () => {
-    const windowWidth =
-      window.innerWidth ||
-      document.documentElement.clientWidth ||
-      document.body.clientWidth;
-    const windowHeight =
-      window.innerHeight ||
-      document.documentElement.clientHeight ||
-      document.body.clientHeight;
+    const currentX = event.clientX;
+    const currentY = event.clientY;
 
-    setState({
-      ...state,
-      windowWidth,
-      windowHeight,
+    const width = Math.abs(currentX - selection.startX);
+    const height = Math.abs(currentY - selection.startY);
+
+    const left = Math.min(currentX, selection.startX);
+    const top = Math.min(currentY, selection.startY);
+
+    setSelection({
+      startX: selection.startX,
+      startY: selection.startY,
+      width,
+      height,
+      left,
+      top,
     });
   };
 
-  const handStartCapture = () => {
-    setState({ ...state, on: true });
-  };
-
-  const handleMouseMove = (e) => {
-    const {
-      isMouseDown,
-      windowWidth,
-      windowHeight,
-      startX,
-      startY,
-      borderWidth,
-    } = state;
-
-    let cropPositionTop = startY;
-    let cropPositionLeft = startX;
-    const endX = e.clientX;
-    const endY = e.clientY;
-    const isStartTop = endY >= startY;
-    const isStartBottom = endY <= startY;
-    const isStartLeft = endX >= startX;
-    const isStartRight = endX <= startX;
-    const isStartTopLeft = isStartTop && isStartLeft;
-    const isStartTopRight = isStartTop && isStartRight;
-    const isStartBottomLeft = isStartBottom && isStartLeft;
-    const isStartBottomRight = isStartBottom && isStartRight;
-    let newBorderWidth = borderWidth;
-    let cropWidth = 0;
-    let cropHeigth = 0;
-
-    if (isMouseDown) {
-      if (isStartTopLeft) {
-        newBorderWidth = `${startY}px ${windowWidth - endX}px ${
-          windowHeight - endY
-        }px ${startX}px`;
-        cropWidth = endX - startX;
-        cropHeigth = endY - startY;
-      }
-
-      if (isStartTopRight) {
-        newBorderWidth = `${startY}px ${windowWidth - startX}px ${
-          windowHeight - endY
-        }px ${endX}px`;
-        cropWidth = startX - endX;
-        cropHeigth = endY - startY;
-        cropPositionLeft = endX;
-      }
-
-      if (isStartBottomLeft) {
-        newBorderWidth = `${endY}px ${windowWidth - endX}px ${
-          windowHeight - startY
-        }px ${startX}px`;
-        cropWidth = endX - startX;
-        cropHeigth = startY - endY;
-        cropPositionTop = endY;
-      }
-
-      if (isStartBottomRight) {
-        newBorderWidth = `${endY}px ${windowWidth - startX}px ${
-          windowHeight - startY
-        }px ${endX}px`;
-        cropWidth = startX - endX;
-        cropHeigth = startY - endY;
-        cropPositionLeft = endX;
-        cropPositionTop = endY;
-      }
-    }
-
-    setState({
-      ...state,
-      crossHairsTop: e.clientY,
-      crossHairsLeft: e.clientX,
-      borderWidth: newBorderWidth,
-      cropWidth,
-      cropHeigth,
-      cropPositionTop: cropPositionTop,
-      cropPositionLeft: cropPositionLeft,
-    });
-  };
-
-  const handleMouseDown = (e) => {
-    const startX = e.clientX;
-    const startY = e.clientY;
-
-    setState((prevState) => ({
-      ...state,
-      startX,
-      startY,
-      cropPositionTop: startY,
-      cropPositionLeft: startX,
-      isMouseDown: true,
-      borderWidth: `${prevState.windowWidth}px ${prevState.windowHeight}px`,
-    }));
-  };
-
-  const handleMouseUp = (e) => {
-    handleClickTakeScreenShot();
-    setState({
-      ...state,
-      on: false,
-      isMouseDown: false,
-      borderWidth: 0,
-    });
-  };
-
-  const handleClickTakeScreenShot = () => {
-    const { cropPositionTop, cropPositionLeft, cropWidth, cropHeigth } = state;
+  const handleMouseUp = () => {
     const body = document.querySelector('body');
-
     if (body) {
-      html2canvas(body).then((canvas) => {
-        let croppedCanvas = document.createElement('canvas');
-        let croppedCanvasContext = croppedCanvas.getContext('2d');
-
-        croppedCanvas.width = cropWidth;
-        croppedCanvas.height = cropHeigth;
-
-        croppedCanvasContext?.drawImage(
-          canvas,
-          cropPositionLeft,
-          cropPositionTop,
-          cropWidth,
-          cropHeigth,
-          0,
-          0,
-          cropWidth,
-          cropHeigth
-        );
-
-        onEndCapture(croppedCanvas.toDataURL());
+      html2canvas(document.body, {
+        x: selection.left,
+        y: selection.top,
+        width: selection.width,
+        height: selection.height,
+      }).then((canvas) => {
+        const image = canvas.toDataURL();
+        setImageURL(image);
       });
     }
+
+    setSelection(null);
   };
 
-  const { on, crossHairsTop, crossHairsLeft, borderWidth, isMouseDown } = state;
+  const convertImageToText = async () => {
+    if (!imageURL) return;
 
-  if (!on) return children;
+    const worker = await Tesseract.createWorker();
+    await worker.loadLanguage('eng');
+    await worker.initialize('eng');
+    const {
+      data: { text, confidence, lines },
+    } = await worker.recognize(imageURL);
+    setOCR({ text, lines, confidence });
+    await worker.terminate();
+  };
+
+  convertImageToText();
 
   return (
     <div
-      onMouseMove={handleMouseMove}
       onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
+      onDragStart={(e) => e.preventDefault()}
+      onSelect={(e) => e.preventDefault()}
     >
       {children}
-      <div
-        className={`overlay ${isMouseDown && 'highlighting'}`}
-        style={{ borderWidth }}
-      />
-      <div
-        className="crosshairs"
-        style={{ left: crossHairsLeft + 'px', top: crossHairsTop + 'px' }}
+      <div className={selection && `screen-capture-overlay`} />
+      {selection && (
+        <div
+          className="screen-capture-highlighter"
+          style={{
+            ...selection,
+          }}
+        />
+      )}
+      <Popover
+        open={!!imageURL}
+        content={
+          <>
+            <Progress percent={30} />
+            <TextArea value={ocr?.text} rows={ocr?.lines?.length} />
+          </>
+        }
+        title={<h1>Copy Image to Text</h1>}
+        arrow={false}
+        placement="bottomRight"
+        destroyTooltipOnHide
       />
     </div>
   );
