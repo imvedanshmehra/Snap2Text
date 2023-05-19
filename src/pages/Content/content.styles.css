@@ -9,7 +9,10 @@
 }
 .screen-capture-highlighter {
   position: absolute;
-  border: 2px dotted red;
+  border: 2px dotted white;
   background: none;
   z-index: 99999999;
+}
+.progress-bar {
+  min-width: 400px;
 }

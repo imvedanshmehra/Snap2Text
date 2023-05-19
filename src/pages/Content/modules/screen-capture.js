@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import '../content.styles.css';
 import { Popover, Progress } from 'antd';
 import html2canvas from 'html2canvas';
-import Tesseract from 'tesseract.js';
+import { createWorker } from 'tesseract.js';
 import TextArea from 'antd/es/input/TextArea';
 
 const ScreenCapture = ({ children }) => {
   const [selection, setSelection] = useState(null);
-  const [imageURL, setImageURL] = useState('');
+  const [isMouseUp, setIsMouseUp] = useState(false);
   const [ocr, setOCR] = useState({});
+  const [progress, setProgress] = useState(0);
 
   const handleMouseDown = (event) => {
     const startX = event.clientX;
@@ -38,6 +39,28 @@ const ScreenCapture = ({ children }) => {
     });
   };
 
+  const convertImageToText = async (image) => {
+    if (!image || ocr.text) return;
+
+    const worker = await createWorker({
+      logger: (m) => {
+        if (m.status === 'recognizing text') {
+          setProgress(m.progress);
+        }
+      },
+    });
+
+    (async () => {
+      await worker.loadLanguage('eng');
+      await worker.initialize('eng');
+      const {
+        data: { text },
+      } = await worker.recognize(image);
+      setOCR({ ...ocr, text });
+      await worker.terminate();
+    })();
+  };
+
   const handleMouseUp = () => {
     const body = document.querySelector('body');
     if (body) {
@@ -48,27 +71,13 @@ const ScreenCapture = ({ children }) => {
         height: selection.height,
       }).then((canvas) => {
         const image = canvas.toDataURL();
-        setImageURL(image);
+        convertImageToText(image);
+        setIsMouseUp(true);
       });
     }
 
     setSelection(null);
   };
-
-  const convertImageToText = async () => {
-    if (!imageURL) return;
-
-    const worker = await Tesseract.createWorker();
-    await worker.loadLanguage('eng');
-    await worker.initialize('eng');
-    const {
-      data: { text, confidence, lines },
-    } = await worker.recognize(imageURL);
-    setOCR({ text, lines, confidence });
-    await worker.terminate();
-  };
-
-  convertImageToText();
 
   return (
     <div
@@ -89,16 +98,26 @@ const ScreenCapture = ({ children }) => {
         />
       )}
       <Popover
-        open={!!imageURL}
+        open={isMouseUp}
         content={
           <>
-            <Progress percent={30} />
-            <TextArea value={ocr?.text} rows={ocr?.lines?.length} />
+            <Progress
+              percent={Math.round(progress * 100)}
+              status="active"
+              strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
+              className="progress-bar"
+            />
+            <TextArea
+              value={ocr?.text}
+              rows={ocr?.lines?.length}
+              autoSize
+              readOnly
+            />
           </>
         }
         title={<h1>Copy Image to Text</h1>}
         arrow={false}
-        placement="bottomRight"
+        placement="rightBottom"
         destroyTooltipOnHide
       />
     </div>
