@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import '../content.styles.css';
-import { Popover, Progress } from 'antd';
+import { Button, Popover, Progress } from 'antd';
 import html2canvas from 'html2canvas';
 import { createWorker } from 'tesseract.js';
 import TextArea from 'antd/es/input/TextArea';
@@ -10,6 +10,7 @@ const ScreenCapture = () => {
   const [isMouseUp, setIsMouseUp] = useState(false);
   const [ocr, setOCR] = useState({});
   const [progress, setProgress] = useState(0);
+  const [showPopover, setShowPopover] = useState(false);
 
   const handleMouseDown = (event) => {
     const startX = event.clientX;
@@ -73,6 +74,7 @@ const ScreenCapture = () => {
         const image = canvas.toDataURL();
         convertImageToText(image);
         setIsMouseUp(true);
+        setShowPopover(true);
       });
     }
 
@@ -80,24 +82,26 @@ const ScreenCapture = () => {
   };
 
   return (
-    <div
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onDragStart={(e) => e.preventDefault()}
-      onSelect={(e) => e.preventDefault()}
-    >
-      <div className={!isMouseUp && `screen-capture-overlay`} />
-      {selection && (
-        <div
-          className={!isMouseUp && `screen-capture-highlighter`}
-          style={{
-            ...selection,
-          }}
-        />
-      )}
+    <>
+      <div
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onDragStart={(e) => e.preventDefault()}
+        onSelect={(e) => e.preventDefault()}
+      >
+        <div className={!isMouseUp ? `screen-capture-overlay` : ''} />
+        {selection && (
+          <div
+            className={!isMouseUp ? `screen-capture-highlighter` : ''}
+            style={{
+              ...selection,
+            }}
+          />
+        )}
+      </div>
       <Popover
-        open={isMouseUp}
+        open={showPopover}
         content={
           <>
             <Progress
@@ -114,12 +118,19 @@ const ScreenCapture = () => {
             />
           </>
         }
-        title={<h1>Copy Image to Text</h1>}
+        title={
+          <div className="flex align-center justify-between">
+            <h1>Copy Image to Text</h1>
+            <Button type="link" onClick={() => setShowPopover(false)}>
+              Close
+            </Button>
+          </div>
+        }
         arrow={false}
         placement="rightBottom"
         destroyTooltipOnHide
       />
-    </div>
+    </>
   );
 };
 

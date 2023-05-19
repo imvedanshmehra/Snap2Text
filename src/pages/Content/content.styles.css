@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 .screen-capture-overlay {
   position: fixed;
   top: 0;
