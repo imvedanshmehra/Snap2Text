@@ -5,7 +5,7 @@ import html2canvas from 'html2canvas';
 import { createWorker } from 'tesseract.js';
 import TextArea from 'antd/es/input/TextArea';
 
-const ScreenCapture = ({ children }) => {
+const ScreenCapture = () => {
   const [selection, setSelection] = useState(null);
   const [isMouseUp, setIsMouseUp] = useState(false);
   const [ocr, setOCR] = useState({});
@@ -87,11 +87,10 @@ const ScreenCapture = ({ children }) => {
       onDragStart={(e) => e.preventDefault()}
       onSelect={(e) => e.preventDefault()}
     >
-      {children}
-      <div className={selection && `screen-capture-overlay`} />
+      <div className={!isMouseUp && `screen-capture-overlay`} />
       {selection && (
         <div
-          className="screen-capture-highlighter"
+          className={!isMouseUp && `screen-capture-highlighter`}
           style={{
             ...selection,
           }}
@@ -103,7 +102,7 @@ const ScreenCapture = ({ children }) => {
           <>
             <Progress
               percent={Math.round(progress * 100)}
-              status="active"
+              status={progress !== 1 && 'active'}
               strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
               className="progress-bar"
             />
