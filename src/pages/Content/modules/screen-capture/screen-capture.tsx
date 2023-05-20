@@ -1,23 +1,23 @@
-import React, { useState } from 'react';
-import '../content.styles.css';
+import React, { MouseEvent, useState } from 'react';
+import '../../content.styles.css';
 import { Button, Card, Popover, Progress } from 'antd';
 import html2canvas from 'html2canvas';
 import { createWorker } from 'tesseract.js';
 
 const ScreenCapture = () => {
-  const [selection, setSelection] = useState(null);
+  const [selection, setSelection] = useState<any>(null);
   const [isMouseUp, setIsMouseUp] = useState(false);
-  const [ocr, setOCR] = useState({});
+  const [ocr, setOCR] = useState<{ text: string } | null>(null);
   const [progress, setProgress] = useState(0);
   const [showPopover, setShowPopover] = useState(false);
 
-  const handleMouseDown = (event) => {
+  const handleMouseDown = (event: MouseEvent<HTMLDivElement>) => {
     const startX = event.clientX;
     const startY = event.clientY;
     setSelection({ startX, startY });
   };
 
-  const handleMouseMove = (event) => {
+  const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
     if (!selection) return;
 
     const currentX = event.clientX;
@@ -39,8 +39,8 @@ const ScreenCapture = () => {
     });
   };
 
-  const convertImageToText = async (image) => {
-    if (!image || ocr.text) return;
+  const convertImageToText = async (image: string) => {
+    if (!image || ocr?.text) return;
 
     const worker = await createWorker({
       logger: (m) => {
@@ -89,10 +89,10 @@ const ScreenCapture = () => {
         onDragStart={(e) => e.preventDefault()}
         onSelect={(e) => e.preventDefault()}
       >
-        <div className={!isMouseUp ? `screen-capture-overlay` : ''} />
+        <div className={!isMouseUp ? `fixed top-0 left-0 w-full h-full bg-black/[.5] z-[999999] cursor-crosshair` : ''} />
         {selection && (
           <div
-            className={!isMouseUp ? `screen-capture-highlighter` : ''}
+            className={!isMouseUp ? `absolute border-2 border-white border-dotted z-[999999]` : ''}
             style={{
               ...selection,
             }}
@@ -111,9 +111,9 @@ const ScreenCapture = () => {
           <>
             <Progress
               percent={Math.round(progress * 100)}
-              status={progress !== 1 && 'active'}
+              status={progress !== 1 ? 'active' : "normal"}
               strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
-              className="progress-bar"
+              className="min-w-[400px]"
             />
             <Card>
               <p>{ocr?.text}</p>
@@ -127,4 +127,4 @@ const ScreenCapture = () => {
   );
 };
 
-export default ScreenCapture;
+export { ScreenCapture }

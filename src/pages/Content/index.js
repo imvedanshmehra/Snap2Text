@@ -1,5 +1,5 @@
 import { createRoot } from 'react-dom/client';
-import ScreenCapture from './modules/screen-capture';
+import { ScreenCapture } from './modules/screen-capture';
 import React from 'react';
 
 const container = document.createElement('div');
