@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import '../content.styles.css';
-import { Button, Popover, Progress } from 'antd';
+import { Button, Card, Popover, Progress } from 'antd';
 import html2canvas from 'html2canvas';
 import { createWorker } from 'tesseract.js';
-import TextArea from 'antd/es/input/TextArea';
 
 const ScreenCapture = () => {
   const [selection, setSelection] = useState(null);
@@ -102,6 +101,12 @@ const ScreenCapture = () => {
       </div>
       <Popover
         open={showPopover}
+        title={
+          <div className="flex align-center justify-between">
+            <h1>Copy Image to Text</h1>
+            <Button type="link">Close</Button>
+          </div>
+        }
         content={
           <>
             <Progress
@@ -110,25 +115,14 @@ const ScreenCapture = () => {
               strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
               className="progress-bar"
             />
-            <TextArea
-              value={ocr?.text}
-              rows={ocr?.lines?.length}
-              autoSize
-              readOnly
-            />
+            <Card>
+              <p>{ocr?.text}</p>
+            </Card>
           </>
-        }
-        title={
-          <div className="flex align-center justify-between">
-            <h1>Copy Image to Text</h1>
-            <Button type="link" onClick={() => setShowPopover(false)}>
-              Close
-            </Button>
-          </div>
         }
         arrow={false}
         placement="rightBottom"
-        destroyTooltipOnHide
+        destroyTooltipOnHide={true}
       />
     </>
   );
