@@ -1,6 +1,6 @@
 {
   "name": "copy-text-from-image",
-  "version": "0.1.9",
+  "version": "0.1.0",
   "description": "A chrome extension to copy text from images",
   "scripts": {
     "build": "node utils/build.js",

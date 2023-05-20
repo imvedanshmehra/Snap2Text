@@ -64,6 +64,7 @@ const ScreenCapture = () => {
   const handleMouseUp = () => {
     const body = document.querySelector('body');
     if (body) {
+      setShowPopover(true);
       html2canvas(document.body, {
         x: selection.left,
         y: selection.top,
@@ -73,7 +74,6 @@ const ScreenCapture = () => {
         const image = canvas.toDataURL();
         convertImageToText(image);
         setIsMouseUp(true);
-        setShowPopover(true);
       });
     }
 
@@ -121,7 +121,6 @@ const ScreenCapture = () => {
           </>
         }
         arrow={false}
-        placement="rightBottom"
         destroyTooltipOnHide={true}
       />
     </>
