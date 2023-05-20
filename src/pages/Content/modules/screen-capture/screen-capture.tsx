@@ -6,6 +6,7 @@ import { createWorker } from 'tesseract.js';
 
 const ScreenCapture = () => {
   const [selection, setSelection] = useState<any>(null);
+  const [currentMousePosition, setCurrentMousePosition] = useState({ left: 0, top: 0 })
   const [isMouseUp, setIsMouseUp] = useState(false);
   const [ocr, setOCR] = useState<{ text: string } | null>(null);
   const [progress, setProgress] = useState(0);
@@ -18,6 +19,7 @@ const ScreenCapture = () => {
   };
 
   const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
+    setCurrentMousePosition({ left: event.clientX, top: event.clientY })
     if (!selection) return;
 
     const currentX = event.clientX;
@@ -90,6 +92,7 @@ const ScreenCapture = () => {
         onSelect={(e) => e.preventDefault()}
       >
         <div className={!isMouseUp ? `fixed top-0 left-0 w-full h-full bg-black/[.5] z-[999999] cursor-crosshair` : ''} />
+        {currentMousePosition && !isMouseUp && <div className='absolute text-black cursor-crosshair z-[999999] text-shadow-sm shadow-white' style={{ ...currentMousePosition }}>{`${currentMousePosition.left}/${currentMousePosition.top}`}</div>}
         {selection && (
           <div
             className={!isMouseUp ? `absolute border-2 border-white border-dotted z-[999999]` : ''}
