@@ -63,17 +63,20 @@ const ScreenCapture = () => {
     })();
   };
 
-  const handleMouseUp = () => {
+  const handleMouseUp = async () => {
     const body = document.querySelector('body');
     if (body) {
       setShowPopover(true);
+
       html2canvas(document.body, {
         x: selection.left,
         y: selection.top,
         width: selection.width,
         height: selection.height,
-      }).then((canvas) => {
-        const image = canvas.toDataURL();
+        scrollY: - window.scrollY,
+        allowTaint: true,
+      }).then(async (canvas) => {
+        const image = await canvas.toDataURL();
         convertImageToText(image);
         setIsMouseUp(true);
       });
@@ -110,6 +113,9 @@ const ScreenCapture = () => {
             <Button type="link">Close</Button>
           </div>
         }
+        arrow={false}
+        destroyTooltipOnHide={true}
+        placement='bottomLeft'
         content={
           <>
             <Progress
@@ -118,13 +124,12 @@ const ScreenCapture = () => {
               strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
               className="min-w-[400px]"
             />
-            <Card>
+            <Card className='max-w-[500px]'>
               <p>{ocr?.text}</p>
             </Card>
           </>
         }
-        arrow={false}
-        destroyTooltipOnHide={true}
+        className='left-0'
       />
     </>
   );
