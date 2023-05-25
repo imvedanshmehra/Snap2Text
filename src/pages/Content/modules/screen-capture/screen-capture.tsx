@@ -1,6 +1,6 @@
 import React, { MouseEvent, useState } from 'react';
 import '../../content.styles.css';
-import { Button, Card, Popover, Progress } from 'antd';
+import { Card, Modal, Progress } from 'antd';
 import html2canvas from 'html2canvas';
 import { createWorker } from 'tesseract.js';
 
@@ -105,32 +105,19 @@ const ScreenCapture = () => {
           />
         )}
       </div>
-      <Popover
-        open={showPopover}
-        title={
-          <div className="flex align-center justify-between">
-            <h1>Copy Image to Text</h1>
-            <Button type="link">Close</Button>
-          </div>
-        }
-        arrow={false}
-        destroyTooltipOnHide={true}
-        placement='bottomLeft'
-        content={
-          <>
-            <Progress
-              percent={Math.round(progress * 100)}
-              status={progress !== 1 ? 'active' : "normal"}
-              strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
-              className="min-w-[400px]"
-            />
-            <Card className='max-w-[500px]'>
-              <p>{ocr?.text}</p>
-            </Card>
-          </>
-        }
-        className='left-0'
-      />
+      <Modal open={showPopover} title="Copy Image to Text" footer={null} onCancel={() => setShowPopover(false)} className='absolute right-0 top-auto bottom-0'>
+        <>
+          <Progress
+            percent={Math.round(progress * 100)}
+            status={progress !== 1 ? 'active' : "normal"}
+            strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
+            className="min-w-[400px]"
+          />
+          <Card className='max-w-[500px]'>
+            <p>{ocr?.text}</p>
+          </Card>
+        </>
+      </Modal>
     </>
   );
 };
