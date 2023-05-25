@@ -1,10 +1,12 @@
 import React, { MouseEvent, useState } from 'react';
 import '../../content.styles.css';
-import { Card, Modal, Progress } from 'antd';
+import { Button, Input, Modal, Progress, Tooltip } from 'antd';
 import html2canvas from 'html2canvas';
 import { createWorker } from 'tesseract.js';
+import { CopyOutlined, } from '@ant-design/icons';
 
 const ScreenCapture = () => {
+
   const [selection, setSelection] = useState<any>(null);
   const [currentMousePosition, setCurrentMousePosition] = useState({ left: 0, top: 0 })
   const [isMouseUp, setIsMouseUp] = useState(false);
@@ -113,9 +115,17 @@ const ScreenCapture = () => {
             strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
             className="min-w-[400px]"
           />
-          <Card className='max-w-[500px]'>
-            <p>{ocr?.text}</p>
-          </Card>
+          <div className="flex">
+            <Input.TextArea value={ocr?.text || 'Loading...'} readOnly autoSize />
+            {ocr?.text && (
+              <Tooltip title={'Copy'} placement='bottom'>
+                <Button type="default" icon={<CopyOutlined />} className='ml-1' onClick={() => {
+                  navigator.clipboard.writeText(ocr?.text || '')
+                }
+                } />
+              </Tooltip>
+            )}
+          </div>
         </>
       </Modal>
     </>
