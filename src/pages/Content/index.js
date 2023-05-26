@@ -5,6 +5,14 @@ import React from 'react';
 const container = document.createElement('div');
 container.setAttribute('id', 'copy-text-to-img-container');
 
-document.body.appendChild(container);
-const root = createRoot(container);
-root.render(<ScreenCapture />);
+const copyTextToImgContainer = document.getElementById(
+  'copy-text-to-img-container'
+);
+
+if (copyTextToImgContainer) {
+  document?.body?.removeChild(copyTextToImgContainer);
+} else {
+  document?.body?.appendChild(container);
+  const root = createRoot(container);
+  root?.render(<ScreenCapture />);
+}
