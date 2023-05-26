@@ -1,6 +1,6 @@
 import React, { MouseEvent, useState } from 'react';
 import '../../content.styles.css';
-import { Button, Input, Modal, Progress, Tooltip } from 'antd';
+import { Button, Input, Modal, Progress, Tooltip, Typography } from 'antd';
 import html2canvas from 'html2canvas';
 import { createWorker } from 'tesseract.js';
 import { CopyOutlined, } from '@ant-design/icons';
@@ -10,9 +10,11 @@ const ScreenCapture = () => {
   const [selection, setSelection] = useState<any>(null);
   const [currentMousePosition, setCurrentMousePosition] = useState({ left: 0, top: 0 })
   const [isMouseUp, setIsMouseUp] = useState(false);
-  const [ocr, setOCR] = useState<{ text: string } | null>(null);
+  const [ocr, setOCR] = useState<{ text: string, confidence: number } | null>(null);
   const [progress, setProgress] = useState(0);
   const [showPopover, setShowPopover] = useState(false);
+
+  const { Text } = Typography
 
   const handleMouseDown = (event: MouseEvent<HTMLDivElement>) => {
     const startX = event.clientX;
@@ -58,9 +60,9 @@ const ScreenCapture = () => {
       await worker.loadLanguage('eng');
       await worker.initialize('eng');
       const {
-        data: { text },
+        data: { text, confidence },
       } = await worker.recognize(image);
-      setOCR({ ...ocr, text });
+      setOCR({ ...ocr, text, confidence });
       await worker.terminate();
     })();
   };
@@ -108,25 +110,27 @@ const ScreenCapture = () => {
         )}
       </div>
       <Modal open={showPopover} title="Copy Image to Text" footer={null} onCancel={() => setShowPopover(false)} className='absolute right-0 top-auto bottom-0'>
-        <>
-          <Progress
-            percent={Math.round(progress * 100)}
-            status={progress !== 1 ? 'active' : "normal"}
-            strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
-            className="min-w-[400px]"
-          />
-          <div className="flex">
-            <Input.TextArea value={ocr?.text || 'Loading...'} readOnly autoSize />
-            {ocr?.text && (
-              <Tooltip title={'Copy'} placement='bottom'>
-                <Button type="default" icon={<CopyOutlined />} className='ml-1' onClick={() => {
-                  navigator.clipboard.writeText(ocr?.text || '')
-                }
-                } />
-              </Tooltip>
-            )}
-          </div>
-        </>
+        <Progress
+          percent={Math.round(progress * 100)}
+          status={progress !== 1 ? 'active' : "normal"}
+          strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
+          className="min-w-[400px]"
+        />
+        <div className="flex">
+          <Input.TextArea value={ocr?.text || 'Loading...'} readOnly autoSize />
+          {ocr?.text && (
+            <Tooltip title={'Copy'} placement='bottom'>
+              <Button type="default" icon={<CopyOutlined />} className='ml-1' onClick={() => {
+                navigator.clipboard.writeText(ocr?.text || '')
+              }
+              } />
+            </Tooltip>
+          )}
+        </div>
+        <div className="flex mt-2 items-center">
+          <Text strong className='mr-1'>Accuracy:</Text>
+          <Progress percent={ocr?.confidence} steps={10} strokeColor={['#d32f2f', '#d32f2f', '#d32f2f', '#d32f2f', '#ed6c02', '#ed6c02', '#ed6c02', '#2e7d32', '#2e7d32']} />
+        </div>
       </Modal>
     </>
   );
