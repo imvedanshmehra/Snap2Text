@@ -3,7 +3,7 @@ import '../../content.styles.css';
 import { Button, Input, Modal, Progress, Tooltip, Typography } from 'antd';
 import html2canvas from 'html2canvas';
 import { createWorker } from 'tesseract.js';
-import { CopyOutlined, } from '@ant-design/icons';
+import { CopyOutlined, ReloadOutlined, } from '@ant-design/icons';
 
 const ScreenCapture = () => {
 
@@ -100,6 +100,13 @@ const ScreenCapture = () => {
     }
   }
 
+  const onRecapture = (e: MouseEvent<HTMLDivElement>) => {
+    setShowPopover(false)
+    setIsMouseUp(false)
+    setOCR(null);
+    setProgress(0)
+  }
+
   return (
     <>
       <div
@@ -127,27 +134,35 @@ const ScreenCapture = () => {
         onCancel={onModalClose}
         destroyOnClose
         className='absolute right-0 top-auto bottom-0'>
-        <Progress
-          percent={Math.round(progress * 100)}
-          status={progress !== 1 ? 'active' : "normal"}
-          strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
-          className="min-w-[400px]"
-        />
-        <div className="flex">
-          <Input.TextArea value={ocr?.text || 'Loading...'} readOnly autoSize />
-          {ocr?.text && (
-            <Tooltip title={'Copy'} placement='bottom'>
-              <Button type="default" icon={<CopyOutlined />} className='ml-1' onClick={() => {
-                navigator.clipboard.writeText(ocr?.text || '')
-              }
-              } />
-            </Tooltip>
-          )}
-        </div>
-        <div className="flex mt-2 items-center">
-          <Text strong className='mr-1'>Accuracy:</Text>
-          <Progress percent={ocr?.confidence} steps={10} strokeColor={['#d32f2f', '#d32f2f', '#d32f2f', '#d32f2f', '#ed6c02', '#ed6c02', '#ed6c02', '#2e7d32', '#2e7d32']} />
-        </div>
+        {ocr?.text ? (
+          <>
+            <div className="flex">
+              <Input.TextArea value={ocr?.text} readOnly autoSize={{ minRows: 4 }} />
+              <div className="flex flex-col ml-1">
+                <Tooltip title={'Copy'} placement='bottom'>
+                  <Button type="default" icon={<CopyOutlined />} onClick={() => {
+                    navigator.clipboard.writeText(ocr?.text || '')
+                  }
+                  } />
+                </Tooltip>
+                <Tooltip title={'Re-Capture'} placement='bottom'>
+                  <Button type="default" icon={<ReloadOutlined onClick={onRecapture} />} />
+                </Tooltip>
+              </div>
+            </div>
+            <div className="flex mt-2 items-center">
+              <Text strong className='mr-1'>Accuracy:</Text>
+              <Progress percent={ocr?.confidence} steps={10} strokeColor={['#d32f2f', '#d32f2f', '#d32f2f', '#d32f2f', '#ed6c02', '#ed6c02', '#ed6c02', '#2e7d32', '#2e7d32']} />
+            </div></>
+        ) : (
+          <Progress
+            type="circle"
+            percent={Math.round(progress * 100)}
+            status={progress !== 1 ? 'active' : "normal"}
+            strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
+            className="min-w-[400px]"
+          />
+        )}
       </Modal>
     </>
   );
