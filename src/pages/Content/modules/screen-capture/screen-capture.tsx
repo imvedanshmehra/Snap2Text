@@ -89,6 +89,17 @@ const ScreenCapture = () => {
     setSelection(null);
   };
 
+  const onModalClose = () => {
+    const copyTextToImgContainer = document.getElementById(
+      'copy-text-to-img-container'
+    );
+    setShowPopover(false)
+    setOCR(null)
+    if (copyTextToImgContainer) {
+      document?.body?.removeChild(copyTextToImgContainer);
+    }
+  }
+
   return (
     <>
       <div
@@ -109,7 +120,13 @@ const ScreenCapture = () => {
           />
         )}
       </div>
-      <Modal open={showPopover} title="Copy Image to Text" footer={null} onCancel={() => setShowPopover(false)} className='absolute right-0 top-auto bottom-0'>
+      <Modal
+        open={showPopover}
+        title="Copy Image to Text"
+        footer={null}
+        onCancel={onModalClose}
+        destroyOnClose
+        className='absolute right-0 top-auto bottom-0'>
         <Progress
           percent={Math.round(progress * 100)}
           status={progress !== 1 ? 'active' : "normal"}
