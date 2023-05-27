@@ -3,7 +3,7 @@ import '../../content.styles.css';
 import { Button, Input, Modal, Progress, Tooltip, Typography } from 'antd';
 import html2canvas from 'html2canvas';
 import { createWorker } from 'tesseract.js';
-import { CopyOutlined, ReloadOutlined, } from '@ant-design/icons';
+import { CheckOutlined, CopyOutlined, ReloadOutlined, } from '@ant-design/icons';
 
 const ScreenCapture = () => {
 
@@ -13,6 +13,7 @@ const ScreenCapture = () => {
   const [ocr, setOCR] = useState<{ text: string, confidence: number } | null>(null);
   const [progress, setProgress] = useState(0);
   const [showPopover, setShowPopover] = useState(false);
+  const [isTextCopied, setIsTextCopied] = useState(false)
 
   const { Text } = Typography
 
@@ -100,6 +101,27 @@ const ScreenCapture = () => {
     }
   }
 
+  const copyTextToClipboard = async (text: string) => {
+    if ('clipboard' in navigator) {
+      return await navigator.clipboard.writeText(text);
+    } else {
+      return document.execCommand('copy', true, text);
+    }
+  }
+
+  const handleCopyClick = (text: string) => {
+    copyTextToClipboard(text)
+      .then(() => {
+        setIsTextCopied(true);
+        setTimeout(() => {
+          setIsTextCopied(false);
+        }, 1500);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }
+
   const onRecapture = (e: MouseEvent<HTMLDivElement>) => {
     setShowPopover(false)
     setIsMouseUp(false)
@@ -140,10 +162,7 @@ const ScreenCapture = () => {
               <Input.TextArea value={ocr?.text} readOnly autoSize={{ minRows: 4 }} />
               <div className="flex flex-col ml-1">
                 <Tooltip title={'Copy'} placement='bottom'>
-                  <Button type="default" icon={<CopyOutlined />} onClick={() => {
-                    navigator.clipboard.writeText(ocr?.text || '')
-                  }
-                  } />
+                  <Button type="default" icon={isTextCopied ? <CheckOutlined /> : <CopyOutlined />} onClick={() => handleCopyClick(ocr?.text)} />
                 </Tooltip>
                 <Tooltip title={'Re-Capture'} placement='bottom'>
                   <Button type="default" icon={<ReloadOutlined onClick={onRecapture} />} />
