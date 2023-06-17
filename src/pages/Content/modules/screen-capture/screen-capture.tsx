@@ -112,7 +112,7 @@ const ScreenCapture = () => {
 
   const onModalClose = () => {
     const copyTextToImgContainer = document.getElementById(
-      'copy-text-to-img-container'
+      'snap2ImageContainer'
     );
     setShowPopover(false);
     setOCR(null);
@@ -186,11 +186,11 @@ const ScreenCapture = () => {
       </div>
       <Modal
         open={showPopover}
-        title="Copy Image to Text"
+        title="Snap2Text"
         footer={null}
         onCancel={onModalClose}
         destroyOnClose
-        getContainer="#copy-text-to-img-container"
+        getContainer="#snap2ImageContainer"
         className="absolute right-0 top-auto bottom-0"
       >
         {ocr?.text ? (

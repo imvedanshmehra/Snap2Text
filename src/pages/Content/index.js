@@ -3,11 +3,9 @@ import { ScreenCapture } from './modules/screen-capture';
 import React from 'react';
 
 const container = document.createElement('div');
-container.setAttribute('id', 'copy-text-to-img-container');
+container.setAttribute('id', 'snap2ImageContainer');
 
-const copyTextToImgContainer = document.getElementById(
-  'copy-text-to-img-container'
-);
+const copyTextToImgContainer = document.getElementById('snap2ImageContainer');
 
 if (copyTextToImgContainer) {
   document?.body?.removeChild(copyTextToImgContainer);
