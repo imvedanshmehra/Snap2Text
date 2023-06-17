@@ -190,15 +190,17 @@ const ScreenCapture = () => {
         footer={null}
         onCancel={onModalClose}
         destroyOnClose
+        getContainer="#copy-text-to-img-container"
         className="absolute right-0 top-auto bottom-0"
       >
         {ocr?.text ? (
           <>
             <div className="flex">
-              <Input.TextArea
+              <textarea
+                rows={4}
+                className="block p-2.5 w-full rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 min-h-fit"
                 value={ocr?.text}
-                readOnly
-                autoSize={{ minRows: 4 }}
+                onChange={(e) => setOCR({ ...ocr, text: e?.target?.value })}
               />
               <div className="flex flex-col ml-1">
                 <Tooltip title={'Copy'} placement="bottom">

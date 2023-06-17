@@ -11,9 +11,13 @@ chrome?.action?.onClicked.addListener((tab) => {
       sendResponse
     ) {
       if (request.message === 'takeScreenshot') {
-        chrome.tabs.captureVisibleTab(null, {}, function (dataUrl) {
-          sendResponse({ screenshotUrl: dataUrl });
-        });
+        chrome?.tabs
+          ?.captureVisibleTab()
+          ?.then((dataUrl) => {
+            console.log('called');
+            sendResponse({ screenshotUrl: dataUrl });
+          })
+          .catch((err) => console.error(err));
       }
       return true;
     });
