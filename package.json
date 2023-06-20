@@ -1,6 +1,6 @@
 {
   "name": "snap2text",
-  "version": "0.1.0",
+  "version": "0.0.0.1",
   "description": "Convert images on webpages to text and more.",
   "scripts": {
     "build": "node utils/build.js",

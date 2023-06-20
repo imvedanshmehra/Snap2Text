@@ -134,7 +134,7 @@ var options = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: 'src/manifest.json',
+          from: 'manifest.json',
           to: path.join(__dirname, 'build'),
           force: true,
           transform: function (content, path) {

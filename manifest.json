@@ -1,6 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Snap2Text - Convert images to text",
+  "version": "0.0.0.1",
   "description": "Convert images on webpages to text and more.",
   "icons": {
     "128": "icon-128.png",
