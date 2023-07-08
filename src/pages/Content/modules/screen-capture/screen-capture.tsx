@@ -1,6 +1,6 @@
 import React, { MouseEvent, useState } from 'react';
 import '../../content.styles.css';
-import { Button, Modal, Progress, Tooltip, Typography } from 'antd';
+import { Button, Modal, Progress, Tag, Tooltip, Typography } from 'antd';
 import { createWorker } from 'tesseract.js';
 import { CheckOutlined, CopyOutlined, ReloadOutlined } from '@ant-design/icons';
 
@@ -182,7 +182,12 @@ const ScreenCapture = () => {
       </div>
       <Modal
         open={showPopover}
-        title="Snap2Text"
+        title={
+          <div className="flex">
+            <p className="mr-2">Snap2Text</p>
+            <Tag>Free</Tag>
+          </div>
+        }
         footer={null}
         onCancel={onModalClose}
         destroyOnClose
