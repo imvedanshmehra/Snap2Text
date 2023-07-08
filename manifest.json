@@ -1,7 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "copy-text-from-image",
-  "description": "A chrome extension to copy text from images",
+  "name": "Snap2Text - Convert images to text",
+  "version": "0.0.0.1",
+  "description": "Convert images on webpages to text and more.",
   "background": { "service_worker": "background.bundle.js", "type": "module" },
   "action": {},
   "permissions": ["scripting", "activeTab"]
