@@ -1,6 +1,6 @@
 import React, { MouseEvent, useState } from 'react';
 import '../../content.styles.css';
-import { Button, Input, Modal, Progress, Tooltip, Typography } from 'antd';
+import { Button, Modal, Progress, Tooltip, Typography } from 'antd';
 import { createWorker } from 'tesseract.js';
 import { CheckOutlined, CopyOutlined, ReloadOutlined } from '@ant-design/icons';
 
@@ -49,8 +49,8 @@ const ScreenCapture = () => {
     });
   };
 
-  const convertImageToText = async (image: string) => {
-    if (!image || ocr?.text) return;
+  const convertImageToText = async (canvas: HTMLCanvasElement) => {
+    if (!canvas || ocr?.text) return;
 
     const worker = await createWorker({
       logger: (m) => {
@@ -65,7 +65,7 @@ const ScreenCapture = () => {
       await worker.initialize('eng');
       const {
         data: { text, confidence },
-      } = await worker.recognize(image);
+      } = await worker.recognize(canvas);
       setOCR({ ...ocr, text, confidence });
       await worker.terminate();
     })();
@@ -98,8 +98,7 @@ const ScreenCapture = () => {
               selection?.width,
               selection?.height
             );
-            const copiedImage = canvas?.toDataURL('image/png');
-            convertImageToText(copiedImage);
+            convertImageToText(canvas);
             setIsMouseUp(true);
           };
           image.src = await screenshotUrl;
@@ -111,9 +110,8 @@ const ScreenCapture = () => {
   };
 
   const onModalClose = () => {
-    const copyTextToImgContainer = document.getElementById(
-      'snap2ImageContainer'
-    );
+    const copyTextToImgContainer =
+      document.getElementById('snap2TextContainer');
     setShowPopover(false);
     setOCR(null);
     if (copyTextToImgContainer) {
@@ -174,9 +172,7 @@ const ScreenCapture = () => {
         {selection && (
           <div
             className={
-              !isMouseUp
-                ? `absolute border-2 border-white border-dotted z-[999999]`
-                : ''
+              !isMouseUp ? `absolute border-2 border-white z-[999999]` : ''
             }
             style={{
               ...selection,
@@ -190,7 +186,7 @@ const ScreenCapture = () => {
         footer={null}
         onCancel={onModalClose}
         destroyOnClose
-        getContainer="#snap2ImageContainer"
+        getContainer="#snap2TextContainer"
         className="absolute right-0 top-auto bottom-0"
       >
         {ocr?.text ? (
@@ -198,7 +194,7 @@ const ScreenCapture = () => {
             <div className="flex">
               <textarea
                 rows={4}
-                className="block p-2.5 w-full rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 min-h-fit"
+                className="block p-2.5 w-full rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 min-h-fit bg-white"
                 value={ocr?.text}
                 onChange={(e) => setOCR({ ...ocr, text: e?.target?.value })}
               />

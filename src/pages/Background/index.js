@@ -5,14 +5,10 @@ chrome?.action?.onClicked.addListener((tab) => {
       files: ['contentScript.bundle.js'],
     });
 
-    chrome.runtime.onMessage.addListener(function (
-      request,
-      sender,
-      sendResponse
-    ) {
+    chrome.runtime.onMessage.addListener((request, _, sendResponse) => {
       if (request.message === 'takeScreenshot') {
         chrome?.tabs
-          ?.captureVisibleTab()
+          ?.captureVisibleTab({ format: 'png' })
           ?.then((dataUrl) => {
             console.log('called');
             sendResponse({ screenshotUrl: dataUrl });
