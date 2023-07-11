@@ -171,20 +171,21 @@ const ScreenCapture = () => {
         )}
         {selection && (
           <div
-            className={
-              !isMouseUp ? `absolute border-2 border-white z-[999999]` : ''
+            className={!isMouseUp ? `absolute z-[999999]` : ''}
+            style={
+              !isMouseUp && {
+                border: '2px solid white',
+                ...selection,
+              }
             }
-            style={{
-              ...selection,
-            }}
           />
         )}
       </div>
       <Modal
         open={showPopover}
         title={
-          <div className="flex">
-            <p className="mr-2">Snap2Text</p>
+          <div className="flex items-center">
+            <h3 className="mr-2 mt-0 mb-0">Snap2Text</h3>
             <Tag>Free</Tag>
           </div>
         }
@@ -204,7 +205,7 @@ const ScreenCapture = () => {
                 onChange={(e) => setOCR({ ...ocr, text: e?.target?.value })}
               />
               <div className="flex flex-col ml-1">
-                <Tooltip title={'Copy'} placement="bottom">
+                <Tooltip title={'Copy'} placement="bottom" className="mb-1">
                   <Button
                     type="default"
                     icon={isTextCopied ? <CheckOutlined /> : <CopyOutlined />}
