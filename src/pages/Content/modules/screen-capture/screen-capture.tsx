@@ -1,8 +1,17 @@
 import React, { MouseEvent, useState } from 'react';
 import '../../content.styles.css';
-import { Button, Modal, Progress, Tag, Tooltip, Typography } from 'antd';
-import { createWorker } from 'tesseract.js';
-import { CheckOutlined, CopyOutlined, ReloadOutlined } from '@ant-design/icons';
+import { Button, Modal, Spin, Tag, Tooltip } from 'antd';
+import {
+  CheckOutlined,
+  CopyOutlined,
+  LoadingOutlined,
+  ReloadOutlined,
+} from '@ant-design/icons';
+import axios from 'axios';
+// @ts-ignore
+import secrets from 'secrets';
+// @ts-ignore
+import endpoints from '../../../../helper/endpoints.js';
 
 const ScreenCapture = () => {
   const [selection, setSelection] = useState<any>(null);
@@ -11,14 +20,12 @@ const ScreenCapture = () => {
     top: 0,
   });
   const [isMouseUp, setIsMouseUp] = useState(false);
-  const [ocr, setOCR] = useState<{ text: string; confidence: number } | null>(
-    null
-  );
-  const [progress, setProgress] = useState(0);
+  const [ocr, setOCR] = useState<{ text: string } | null>(null);
   const [showPopover, setShowPopover] = useState(false);
   const [isTextCopied, setIsTextCopied] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const { Text } = Typography;
+  const loadingIcon = <LoadingOutlined style={{ fontSize: 32 }} spin />;
 
   const handleMouseDown = (event: MouseEvent<HTMLDivElement>) => {
     const startX = event.clientX;
@@ -49,32 +56,42 @@ const ScreenCapture = () => {
     });
   };
 
-  const convertImageToText = async (canvas: HTMLCanvasElement) => {
-    if (!canvas || ocr?.text) return;
+  const convertImageToText = async (base64Image: string) => {
+    if (!base64Image || ocr?.text) return;
 
-    const worker = await createWorker({
-      logger: (m) => {
-        if (m.status === 'recognizing text') {
-          setProgress(m.progress);
+    axios
+      .post(
+        endpoints?.OCR_SPACE_POST,
+        {
+          language: 'eng',
+          isOverlayRequired: false,
+          iscreatesearchablepdf: false,
+          issearchablepdfhidetextlayer: false,
+          base64Image,
+        },
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            apikey: secrets.OCR_API_KEY,
+          },
         }
-      },
-    });
-
-    (async () => {
-      await worker.loadLanguage('eng');
-      await worker.initialize('eng');
-      const {
-        data: { text, confidence },
-      } = await worker.recognize(canvas);
-      setOCR({ ...ocr, text, confidence });
-      await worker.terminate();
-    })();
+      )
+      .then((res) => {
+        setOCR({
+          ...ocr,
+          text:
+            res?.data?.ParsedResults && res?.data?.ParsedResults[0]?.ParsedText,
+        });
+      })
+      .catch((err) => console.error(err))
+      .finally(() => setIsLoading(false));
   };
 
   const handleMouseUp = async () => {
     const body = document.querySelector('body');
     if (body) {
       setShowPopover(true);
+      setIsLoading(true);
       chrome.runtime.sendMessage(
         { message: 'takeScreenshot' },
         async (response) => {
@@ -98,7 +115,8 @@ const ScreenCapture = () => {
               selection?.width,
               selection?.height
             );
-            convertImageToText(canvas);
+            const copiedImage = canvas?.toDataURL('image/png');
+            convertImageToText(copiedImage);
             setIsMouseUp(true);
           };
           image.src = await screenshotUrl;
@@ -144,7 +162,6 @@ const ScreenCapture = () => {
     setShowPopover(false);
     setIsMouseUp(false);
     setOCR(null);
-    setProgress(0);
   };
 
   return (
@@ -195,7 +212,7 @@ const ScreenCapture = () => {
         getContainer="#snap2TextContainer"
         className="absolute right-0 top-auto bottom-0"
       >
-        {ocr?.text ? (
+        {!isLoading && ocr?.text ? (
           <>
             <div className="flex">
               <textarea
@@ -220,35 +237,11 @@ const ScreenCapture = () => {
                 </Tooltip>
               </div>
             </div>
-            <div className="flex mt-2 items-center">
-              <Text strong className="mr-1">
-                Accuracy:
-              </Text>
-              <Progress
-                percent={ocr?.confidence}
-                steps={10}
-                strokeColor={[
-                  '#d32f2f',
-                  '#d32f2f',
-                  '#d32f2f',
-                  '#d32f2f',
-                  '#ed6c02',
-                  '#ed6c02',
-                  '#ed6c02',
-                  '#2e7d32',
-                  '#2e7d32',
-                ]}
-              />
-            </div>
           </>
         ) : (
-          <Progress
-            type="circle"
-            percent={Math.round(progress * 100)}
-            status={progress !== 1 ? 'active' : 'normal'}
-            strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
-            className="min-w-[400px]"
-          />
+          <div className="mt-4">
+            <Spin indicator={loadingIcon} />
+          </div>
         )}
       </Modal>
     </>
