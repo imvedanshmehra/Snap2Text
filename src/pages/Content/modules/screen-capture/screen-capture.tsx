@@ -6,6 +6,7 @@ import {
   CopyOutlined,
   LoadingOutlined,
   ReloadOutlined,
+  TranslationOutlined,
 } from '@ant-design/icons';
 import axios from 'axios';
 // @ts-ignore
@@ -67,6 +68,7 @@ const ScreenCapture = () => {
           isOverlayRequired: false,
           iscreatesearchablepdf: false,
           issearchablepdfhidetextlayer: false,
+          scale: 'true',
           base64Image,
         },
         {
@@ -210,6 +212,7 @@ const ScreenCapture = () => {
         onCancel={onModalClose}
         destroyOnClose
         getContainer="#snap2TextContainer"
+        width="650px"
         className="absolute right-0 top-auto bottom-0"
       >
         {!isLoading && ocr?.text ? (
@@ -217,9 +220,11 @@ const ScreenCapture = () => {
             <div className="flex">
               <textarea
                 rows={4}
-                className="block p-2.5 w-full rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 min-h-fit bg-white"
+                className="block p-2.5 w-full rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 bg-white text-black"
                 value={ocr?.text}
-                onChange={(e) => setOCR({ ...ocr, text: e?.target?.value })}
+                onChange={(e) => {
+                  setOCR({ ...ocr, text: e?.target?.value });
+                }}
               />
               <div className="flex flex-col ml-1">
                 <Tooltip title={'Copy'} placement="bottom" className="mb-1">
@@ -229,10 +234,29 @@ const ScreenCapture = () => {
                     onClick={() => handleCopyClick(ocr?.text)}
                   />
                 </Tooltip>
-                <Tooltip title={'Re-Capture'} placement="bottom">
+                <Tooltip
+                  title={'Re-Capture'}
+                  placement="bottom"
+                  className="mb-1"
+                >
                   <Button
                     type="default"
                     icon={<ReloadOutlined onClick={onRecapture} />}
+                  />
+                </Tooltip>
+                <Tooltip
+                  title={'Translate with Google Translate'}
+                  placement="bottom"
+                >
+                  <Button
+                    type="default"
+                    icon={<TranslationOutlined />}
+                    onClick={() =>
+                      chrome.runtime.sendMessage({
+                        message: 'translateWithGoogleTranslate',
+                        options: { text: ocr?.text },
+                      })
+                    }
                   />
                 </Tooltip>
               </div>
