@@ -29,17 +29,21 @@ const ScreenCapture = () => {
   const loadingIcon = <LoadingOutlined style={{ fontSize: 32 }} spin />;
 
   const handleMouseDown = (event: MouseEvent<HTMLDivElement>) => {
-    const startX = event.clientX;
-    const startY = event.clientY;
+    const startX = event.clientX + window.scrollX;
+    const startY = event.clientY + window.scrollY;
     setSelection({ startX, startY });
   };
 
   const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
-    setCurrentMousePosition({ left: event.clientX, top: event.clientY });
+    setCurrentMousePosition({
+      left: event.clientX + window.scrollX,
+      top: event.clientY + window.scrollY,
+    });
+
     if (!selection) return;
 
-    const currentX = event.clientX;
-    const currentY = event.clientY;
+    const currentX = event.clientX + window.scrollX;
+    const currentY = event.clientY + window.scrollY;
 
     const width = Math.abs(currentX - selection.startX);
     const height = Math.abs(currentY - selection.startY);
@@ -108,8 +112,14 @@ const ScreenCapture = () => {
 
             context?.drawImage(
               image,
-              selection?.startX + selection?.startX,
-              selection?.startY + selection?.startY,
+              selection?.startX +
+                selection?.startX -
+                window.scrollX -
+                window.scrollX,
+              selection?.startY +
+                selection?.startY -
+                window.scrollY -
+                window.scrollY,
               selection?.width + selection?.width,
               selection?.height + selection?.height,
               0,
@@ -175,31 +185,27 @@ const ScreenCapture = () => {
         onDragStart={(e) => e.preventDefault()}
         onSelect={(e) => e.preventDefault()}
       >
-        <div
-          className={
-            !isMouseUp
-              ? `fixed top-0 left-0 w-full h-full bg-black/[.5] z-[999999] cursor-crosshair`
-              : ''
-          }
-        />
+        {!isMouseUp && (
+          <div
+            className={`fixed top-0 left-0 w-full h-full bg-black/[.5] z-[999999] cursor-crosshair`}
+          />
+        )}
         {currentMousePosition && !isMouseUp && (
           <div
             className="absolute text-black cursor-crosshair z-[999999] text-shadow-sm shadow-white"
             style={{ ...currentMousePosition }}
           >{`${currentMousePosition.left}/${currentMousePosition.top}`}</div>
         )}
-        {selection && (
+        {selection && !isMouseUp && (
           <div
-            className={!isMouseUp ? `absolute z-[999999]` : ''}
-            style={
-              !isMouseUp && {
-                border: '2px solid white',
-                ...selection,
-              }
-            }
+            className={`absolute border-solid border-2 border-white z-[999999]`}
+            style={{
+              ...selection,
+            }}
           />
         )}
       </div>
+
       <Modal
         open={showPopover}
         title={
