@@ -7,6 +7,7 @@ const webpack = require('webpack'),
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const ReactRefreshTypeScript = require('react-refresh-typescript');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const ASSET_PATH = process.env.ASSET_PATH || '/';
 
@@ -39,6 +40,7 @@ var options = {
   entry: {
     background: path.join(__dirname, 'src', 'pages', 'background', 'index.js'),
     contentScript: path.join(__dirname, 'src', 'pages', 'content', 'index.js'),
+    popup: path.join(__dirname, 'src', 'pages', 'popup', 'index.jsx'),
   },
   chromeExtensionBoilerplate: {
     notHotReload: ['background', 'contentScript', 'devtools'],
@@ -130,7 +132,7 @@ var options = {
           to: path.join(__dirname, 'build'),
           force: true,
           transform: function (content, path) {
-            // generates the manifest file using the package.json informations
+            // generates the manifest file using the package.json information
             return Buffer.from(
               JSON.stringify({
                 description: process.env.npm_package_description,
@@ -145,7 +147,7 @@ var options = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: 'src/pages/content/content.styles.css',
+          from: 'src/pages/index.styles.css',
           to: path.join(__dirname, 'build'),
           force: true,
         },
@@ -186,6 +188,12 @@ var options = {
           force: true,
         },
       ],
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, 'src', 'pages', 'popup', 'index.html'),
+      filename: 'popup.html',
+      chunks: ['popup'],
+      cache: false,
     }),
   ].filter(Boolean),
   infrastructureLogging: {

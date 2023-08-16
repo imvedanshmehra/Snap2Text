@@ -1,6 +1,6 @@
 import React, { MouseEvent, useState } from 'react';
-import '../../content.styles.css';
-import { Button, Modal, Spin, Tag, Tooltip } from 'antd';
+import '../../../index.styles.css';
+import { Button, Modal, Spin, Tooltip } from 'antd';
 import {
   CheckOutlined,
   CopyOutlined,
@@ -211,7 +211,6 @@ const ScreenCapture = () => {
         title={
           <div className="flex items-center">
             <h3 className="mr-2 mt-0 mb-0">Snap2Text</h3>
-            <Tag>Free</Tag>
           </div>
         }
         footer={null}

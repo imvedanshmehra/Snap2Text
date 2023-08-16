@@ -5,5 +5,5 @@
   "description": "Convert images on webpages to text and more.",
   "background": { "service_worker": "background.bundle.js", "type": "module" },
   "action": {},
-  "permissions": ["scripting", "activeTab"]
+  "permissions": ["scripting", "activeTab", "storage"]
 }
