@@ -210,7 +210,7 @@ const ScreenCapture = () => {
         open={showPopover}
         title={
           <div className="flex items-center">
-            <h3 className="mr-2 mt-0 mb-0">Snap2Text</h3>
+            <h2 className="mr-2 mt-0 mb-0">Snap2Text</h2>
           </div>
         }
         footer={null}
