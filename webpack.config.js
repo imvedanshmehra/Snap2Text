@@ -7,6 +7,7 @@ const webpack = require('webpack'),
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const ReactRefreshTypeScript = require('react-refresh-typescript');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const ASSET_PATH = process.env.ASSET_PATH || '/';
 
@@ -39,6 +40,7 @@ var options = {
   entry: {
     background: path.join(__dirname, 'src', 'pages', 'background', 'index.js'),
     contentScript: path.join(__dirname, 'src', 'pages', 'content', 'index.js'),
+    popup: path.join(__dirname, 'src', 'pages', 'popup', 'index.jsx'),
   },
   chromeExtensionBoilerplate: {
     notHotReload: ['background', 'contentScript', 'devtools'],
@@ -52,9 +54,7 @@ var options = {
   module: {
     rules: [
       {
-        // look for .css or .scss files
-        test: /\.(css|scss)$/,
-        // in the `src` directory
+        test: /\.(css)$/,
         use: [
           {
             loader: 'style-loader',
@@ -64,12 +64,6 @@ var options = {
           },
           {
             loader: 'postcss-loader',
-          },
-          {
-            loader: 'sass-loader',
-            options: {
-              sourceMap: true,
-            },
           },
         ],
       },
@@ -138,7 +132,7 @@ var options = {
           to: path.join(__dirname, 'build'),
           force: true,
           transform: function (content, path) {
-            // generates the manifest file using the package.json informations
+            // generates the manifest file using the package.json information
             return Buffer.from(
               JSON.stringify({
                 description: process.env.npm_package_description,
@@ -153,7 +147,7 @@ var options = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: 'src/pages/content/content.styles.css',
+          from: 'src/pages/index.styles.css',
           to: path.join(__dirname, 'build'),
           force: true,
         },
@@ -162,7 +156,7 @@ var options = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: 'src/assets/img/icon-128.png',
+          from: 'src/assets/favicon/icon-16.png',
           to: path.join(__dirname, 'build'),
           force: true,
         },
@@ -171,7 +165,7 @@ var options = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: 'src/assets/img/icon-48.png',
+          from: 'src/assets/favicon/icon-32.png',
           to: path.join(__dirname, 'build'),
           force: true,
         },
@@ -180,7 +174,7 @@ var options = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: 'src/assets/img/icon-32.png',
+          from: 'src/assets/favicon/icon-48.ico',
           to: path.join(__dirname, 'build'),
           force: true,
         },
@@ -189,11 +183,35 @@ var options = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: 'src/assets/img/icon-16.png',
+          from: 'src/assets/favicon/icon-180.png',
           to: path.join(__dirname, 'build'),
           force: true,
         },
       ],
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'src/assets/favicon/icon-192.png',
+          to: path.join(__dirname, 'build'),
+          force: true,
+        },
+      ],
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'src/assets/favicon/icon-512.png',
+          to: path.join(__dirname, 'build'),
+          force: true,
+        },
+      ],
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, 'src', 'pages', 'popup', 'index.html'),
+      filename: 'popup.html',
+      chunks: ['popup'],
+      cache: false,
     }),
   ].filter(Boolean),
   infrastructureLogging: {

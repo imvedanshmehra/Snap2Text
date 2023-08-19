@@ -1,8 +1,18 @@
 import React, { MouseEvent, useState } from 'react';
-import '../../content.styles.css';
-import { Button, Modal, Progress, Tooltip, Typography } from 'antd';
-import { createWorker } from 'tesseract.js';
-import { CheckOutlined, CopyOutlined, ReloadOutlined } from '@ant-design/icons';
+import '../../../index.styles.css';
+import { Button, Modal, Spin, Tooltip } from 'antd';
+import {
+  CheckOutlined,
+  CopyOutlined,
+  LoadingOutlined,
+  ReloadOutlined,
+  TranslationOutlined,
+} from '@ant-design/icons';
+import axios from 'axios';
+// @ts-ignore
+import secrets from 'secrets';
+// @ts-ignore
+import endpoints from '../../../../helper/endpoints.js';
 
 const ScreenCapture = () => {
   const [selection, setSelection] = useState<any>(null);
@@ -11,27 +21,29 @@ const ScreenCapture = () => {
     top: 0,
   });
   const [isMouseUp, setIsMouseUp] = useState(false);
-  const [ocr, setOCR] = useState<{ text: string; confidence: number } | null>(
-    null
-  );
-  const [progress, setProgress] = useState(0);
+  const [ocr, setOCR] = useState<{ text: string } | null>(null);
   const [showPopover, setShowPopover] = useState(false);
   const [isTextCopied, setIsTextCopied] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const { Text } = Typography;
+  const loadingIcon = <LoadingOutlined style={{ fontSize: 32 }} spin />;
 
   const handleMouseDown = (event: MouseEvent<HTMLDivElement>) => {
-    const startX = event.clientX;
-    const startY = event.clientY;
+    const startX = event.clientX + window.scrollX;
+    const startY = event.clientY + window.scrollY;
     setSelection({ startX, startY });
   };
 
   const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
-    setCurrentMousePosition({ left: event.clientX, top: event.clientY });
+    setCurrentMousePosition({
+      left: event.clientX + window.scrollX,
+      top: event.clientY + window.scrollY,
+    });
+
     if (!selection) return;
 
-    const currentX = event.clientX;
-    const currentY = event.clientY;
+    const currentX = event.clientX + window.scrollX;
+    const currentY = event.clientY + window.scrollY;
 
     const width = Math.abs(currentX - selection.startX);
     const height = Math.abs(currentY - selection.startY);
@@ -49,32 +61,43 @@ const ScreenCapture = () => {
     });
   };
 
-  const convertImageToText = async (canvas: HTMLCanvasElement) => {
-    if (!canvas || ocr?.text) return;
+  const convertImageToText = async (base64Image: string) => {
+    if (!base64Image || ocr?.text) return;
 
-    const worker = await createWorker({
-      logger: (m) => {
-        if (m.status === 'recognizing text') {
-          setProgress(m.progress);
+    axios
+      .post(
+        endpoints?.OCR_SPACE_POST,
+        {
+          language: 'eng',
+          isOverlayRequired: false,
+          iscreatesearchablepdf: false,
+          issearchablepdfhidetextlayer: false,
+          scale: 'true',
+          base64Image,
+        },
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            apikey: secrets.OCR_API_KEY,
+          },
         }
-      },
-    });
-
-    (async () => {
-      await worker.loadLanguage('eng');
-      await worker.initialize('eng');
-      const {
-        data: { text, confidence },
-      } = await worker.recognize(canvas);
-      setOCR({ ...ocr, text, confidence });
-      await worker.terminate();
-    })();
+      )
+      .then((res) => {
+        setOCR({
+          ...ocr,
+          text:
+            res?.data?.ParsedResults && res?.data?.ParsedResults[0]?.ParsedText,
+        });
+      })
+      .catch((err) => console.error(err))
+      .finally(() => setIsLoading(false));
   };
 
   const handleMouseUp = async () => {
     const body = document.querySelector('body');
     if (body) {
       setShowPopover(true);
+      setIsLoading(true);
       chrome.runtime.sendMessage(
         { message: 'takeScreenshot' },
         async (response) => {
@@ -89,8 +112,14 @@ const ScreenCapture = () => {
 
             context?.drawImage(
               image,
-              selection?.startX + selection?.startX,
-              selection?.startY + selection?.startY,
+              selection?.startX +
+                selection?.startX -
+                window.scrollX -
+                window.scrollX,
+              selection?.startY +
+                selection?.startY -
+                window.scrollY -
+                window.scrollY,
               selection?.width + selection?.width,
               selection?.height + selection?.height,
               0,
@@ -98,7 +127,8 @@ const ScreenCapture = () => {
               selection?.width,
               selection?.height
             );
-            convertImageToText(canvas);
+            const copiedImage = canvas?.toDataURL('image/png');
+            convertImageToText(copiedImage);
             setIsMouseUp(true);
           };
           image.src = await screenshotUrl;
@@ -144,7 +174,6 @@ const ScreenCapture = () => {
     setShowPopover(false);
     setIsMouseUp(false);
     setOCR(null);
-    setProgress(0);
   };
 
   return (
@@ -156,93 +185,92 @@ const ScreenCapture = () => {
         onDragStart={(e) => e.preventDefault()}
         onSelect={(e) => e.preventDefault()}
       >
-        <div
-          className={
-            !isMouseUp
-              ? `fixed top-0 left-0 w-full h-full bg-black/[.5] z-[999999] cursor-crosshair`
-              : ''
-          }
-        />
+        {!isMouseUp && (
+          <div
+            className={`fixed top-0 left-0 w-full h-full bg-black/[.5] z-[999999] cursor-crosshair`}
+          />
+        )}
         {currentMousePosition && !isMouseUp && (
           <div
             className="absolute text-black cursor-crosshair z-[999999] text-shadow-sm shadow-white"
             style={{ ...currentMousePosition }}
           >{`${currentMousePosition.left}/${currentMousePosition.top}`}</div>
         )}
-        {selection && (
+        {selection && !isMouseUp && (
           <div
-            className={
-              !isMouseUp ? `absolute border-2 border-white z-[999999]` : ''
-            }
+            className={`absolute border-solid border-2 border-white z-[999999]`}
             style={{
               ...selection,
             }}
           />
         )}
       </div>
+
       <Modal
         open={showPopover}
-        title="Snap2Text"
+        title={
+          <div className="flex items-center">
+            <h3 className="mr-2 mt-0 mb-0">Snap2Text</h3>
+          </div>
+        }
         footer={null}
         onCancel={onModalClose}
         destroyOnClose
         getContainer="#snap2TextContainer"
+        width="650px"
         className="absolute right-0 top-auto bottom-0"
       >
-        {ocr?.text ? (
+        {!isLoading && ocr?.text ? (
           <>
             <div className="flex">
               <textarea
                 rows={4}
-                className="block p-2.5 w-full rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 min-h-fit bg-white"
+                className="block p-2.5 w-full rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 bg-white text-black"
                 value={ocr?.text}
-                onChange={(e) => setOCR({ ...ocr, text: e?.target?.value })}
+                onChange={(e) => {
+                  setOCR({ ...ocr, text: e?.target?.value });
+                }}
               />
               <div className="flex flex-col ml-1">
-                <Tooltip title={'Copy'} placement="bottom">
+                <Tooltip title={'Copy'} placement="bottom" className="mb-1">
                   <Button
                     type="default"
                     icon={isTextCopied ? <CheckOutlined /> : <CopyOutlined />}
                     onClick={() => handleCopyClick(ocr?.text)}
                   />
                 </Tooltip>
-                <Tooltip title={'Re-Capture'} placement="bottom">
+                <Tooltip
+                  title={'Re-Capture'}
+                  placement="bottom"
+                  className="mb-1"
+                >
                   <Button
                     type="default"
                     icon={<ReloadOutlined onClick={onRecapture} />}
                   />
                 </Tooltip>
+                <Tooltip
+                  title={'Translate with Google Translate'}
+                  placement="bottom"
+                >
+                  <Button
+                    type="default"
+                    icon={<TranslationOutlined />}
+                    onClick={() =>
+                      chrome.runtime.sendMessage({
+                        message: 'translateWithGoogleTranslate',
+                        options: { text: ocr?.text },
+                      })
+                    }
+                  />
+                </Tooltip>
               </div>
-            </div>
-            <div className="flex mt-2 items-center">
-              <Text strong className="mr-1">
-                Accuracy:
-              </Text>
-              <Progress
-                percent={ocr?.confidence}
-                steps={10}
-                strokeColor={[
-                  '#d32f2f',
-                  '#d32f2f',
-                  '#d32f2f',
-                  '#d32f2f',
-                  '#ed6c02',
-                  '#ed6c02',
-                  '#ed6c02',
-                  '#2e7d32',
-                  '#2e7d32',
-                ]}
-              />
             </div>
           </>
         ) : (
-          <Progress
-            type="circle"
-            percent={Math.round(progress * 100)}
-            status={progress !== 1 ? 'active' : 'normal'}
-            strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
-            className="min-w-[400px]"
-          />
+          <div className="mt-4">
+            <Spin indicator={loadingIcon} />
+          </div>
         )}
       </Modal>
     </>
