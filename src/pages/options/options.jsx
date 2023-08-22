@@ -22,15 +22,15 @@ const Options = () => {
   }, []);
 
   return (
-    <div className="bg-neutral-300 m-0 min-h-screen p-4">
-      <h1 className="text-center">Snap2Text Options</h1>
-      <div className="w-3/5 ml-auto mr-auto bg-white shadow-md rounded-md p-4">
-        <div className="flex items-center">
-          <p className="mr-3 text-base">
+    <div className="s2t-bg-neutral-300 s2t-m-0 s2t-min-h-screen s2t-p-4">
+      <h1 className="s2t-text-center">Snap2Text Options</h1>
+      <div className="s2t-w-3/5 s2t-ml-auto s2t-mr-auto s2t-bg-white s2t-shadow-md s2t-rounded-md s2t-p-4">
+        <div className="s2t-flex s2t-items-center">
+          <p className="s2t-mr-3 s2t-text-base">
             Subscription Status:{' '}
             <span
-              className={`font-bold ${
-                isPaid ? 'text-lime-700' : 'text-red-700'
+              className={`s2t-font-bold ${
+                isPaid ? 's2t-text-lime-700' : 's2t-text-red-700'
               }`}
             >
               {isPaid ? 'Paid' : 'Free'}
@@ -41,7 +41,7 @@ const Options = () => {
           </Button>
         </div>
         <footer>
-          <p className="text-sm">
+          <p className="s2t-text-sm">
             Facing Issues?{' '}
             <Button
               type="link"

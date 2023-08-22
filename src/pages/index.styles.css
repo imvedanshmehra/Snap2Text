@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
+.snap2text-options-body {
   margin: 0;
   font-family: Roboto, Helvetica, sans-serif;
 }

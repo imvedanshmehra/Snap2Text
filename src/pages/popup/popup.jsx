@@ -7,9 +7,9 @@ const extpay = ExtPay('snap2text-prod');
 
 const Popup = () => {
   return (
-    <div className="w-96">
+    <div className="s2t-w-96">
       <h1>Snap2Text</h1>
-      <p className="text-base">
+      <p className="s2t-text-base">
         Hi 👋 Welcome to <b>Snap2Text!</b>
       </p>
       <Button

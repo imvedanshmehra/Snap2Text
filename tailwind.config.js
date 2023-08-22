@@ -26,4 +26,5 @@ module.exports = {
   corePlugins: {
     preflight: false,
   },
+  prefix: 's2t-',
 };

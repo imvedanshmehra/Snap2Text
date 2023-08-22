@@ -187,18 +187,18 @@ const ScreenCapture = () => {
       >
         {!isMouseUp && (
           <div
-            className={`fixed top-0 left-0 w-full h-full bg-black/[.5] z-[999999] cursor-crosshair`}
+            className={`s2t-fixed s2t-top-0 s2t-left-0 s2t-w-full s2t-h-full s2t-bg-black/[.5] s2t-z-[999999] s2t-cursor-crosshair`}
           />
         )}
         {currentMousePosition && !isMouseUp && (
           <div
-            className="absolute text-black cursor-crosshair z-[999999] text-shadow-sm shadow-white"
+            className="s2t-absolute s2t-text-black s2t-cursor-crosshair s2t-z-[999999] s2t-text-shadow-sm s2t-shadow-white"
             style={{ ...currentMousePosition }}
           >{`${currentMousePosition.left}/${currentMousePosition.top}`}</div>
         )}
         {selection && !isMouseUp && (
           <div
-            className={`absolute border-solid border-2 border-white z-[999999]`}
+            className={`s2t-absolute s2t-border-solid s2t-border-2 s2t-border-white s2t-z-[999999]`}
             style={{
               ...selection,
             }}
@@ -209,8 +209,8 @@ const ScreenCapture = () => {
       <Modal
         open={showPopover}
         title={
-          <div className="flex items-center">
-            <h2 className="mr-2 mt-0 mb-0">Snap2Text</h2>
+          <div className="s2t-flex s2t-items-center">
+            <h2 className="s2t-mr-2 s2t-mt-0 s2t-mb-0">Snap2Text</h2>
           </div>
         }
         footer={null}
@@ -218,21 +218,21 @@ const ScreenCapture = () => {
         destroyOnClose
         getContainer="#snap2TextContainer"
         width="650px"
-        className="absolute right-0 top-auto bottom-0"
+        className="s2t-absolute s2t-right-0 s2t-top-auto s2t-bottom-0"
       >
         {!isLoading && ocr?.text ? (
           <>
-            <div className="flex">
+            <div className="s2t-flex">
               <textarea
                 rows={4}
-                className="block p-2.5 w-full rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 bg-white text-black"
+                className="s2t-block s2t-p-2.5 s2t-w-full s2t-rounded-lg s2t-border s2t-border-gray-300 s2t-focus:ring-blue-500 s2t-focus:border-blue-500 s2t-bg-white s2t-text-black"
                 value={ocr?.text}
                 onChange={(e) => {
                   setOCR({ ...ocr, text: e?.target?.value });
                 }}
               />
-              <div className="flex flex-col ml-1">
-                <Tooltip title={'Copy'} placement="bottom" className="mb-1">
+              <div className="s2t-flex s2t-flex-col s2t-ml-1">
+                <Tooltip title={'Copy'} placement="bottom" className="s2t-mb-1">
                   <Button
                     type="default"
                     icon={isTextCopied ? <CheckOutlined /> : <CopyOutlined />}
@@ -242,7 +242,7 @@ const ScreenCapture = () => {
                 <Tooltip
                   title={'Re-Capture'}
                   placement="bottom"
-                  className="mb-1"
+                  className="s2t-mb-1"
                 >
                   <Button
                     type="default"
@@ -268,7 +268,7 @@ const ScreenCapture = () => {
             </div>
           </>
         ) : (
-          <div className="mt-4">
+          <div className="s2t-mt-4">
             <Spin indicator={loadingIcon} />
           </div>
         )}
