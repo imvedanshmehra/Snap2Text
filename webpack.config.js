@@ -35,7 +35,7 @@ if (fileSystem.existsSync(secretsPath)) {
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
-var options = {
+const options = {
   mode: process.env.NODE_ENV || 'development',
   entry: {
     background: path.join(__dirname, 'src', 'pages', 'background', 'index.js'),
@@ -44,7 +44,7 @@ var options = {
     options: path.join(__dirname, 'src', 'pages', 'options', 'index.jsx'),
   },
   chromeExtensionBoilerplate: {
-    notHotReload: ['background', 'contentScript', 'devtools'],
+    notHotReload: ['background', 'contentScript'],
   },
   output: {
     filename: '[name].bundle.js',
@@ -67,11 +67,6 @@ var options = {
             loader: 'postcss-loader',
           },
         ],
-      },
-      {
-        test: new RegExp('.(' + fileExtensions.join('|') + ')$'),
-        type: 'asset/resource',
-        exclude: /node_modules/,
       },
       {
         test: /\.html$/,
@@ -226,7 +221,7 @@ var options = {
   },
 };
 
-if (env.NODE_ENV === 'development') {
+if (isDevelopment) {
   options.devtool = 'cheap-module-source-map';
 } else {
   options.optimization = {
