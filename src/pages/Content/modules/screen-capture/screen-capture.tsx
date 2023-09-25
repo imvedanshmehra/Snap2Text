@@ -112,16 +112,10 @@ const ScreenCapture = () => {
 
             context?.drawImage(
               image,
-              selection?.startX +
-                selection?.startX -
-                window.scrollX -
-                window.scrollX,
-              selection?.startY +
-                selection?.startY -
-                window.scrollY -
-                window.scrollY,
-              selection?.width + selection?.width,
-              selection?.height + selection?.height,
+              selection?.startX * 2 - window.scrollX * 2,
+              selection?.startY * 2 - window.scrollY * 2,
+              selection?.width * 2,
+              selection?.height * 2,
               0,
               0,
               selection?.width,
