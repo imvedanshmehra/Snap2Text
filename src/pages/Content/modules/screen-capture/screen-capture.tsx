@@ -103,14 +103,34 @@ const ScreenCapture = () => {
         async (response) => {
           const screenshotUrl = await response?.screenshotUrl;
           const image = new Image();
+          const devicePxRatio = devicePixelRatio;
+          const scaleValue = 1 / devicePxRatio;
 
-          image.onload = () => {
+          // image.onload = () => {
+          //   const canvas = document.createElement('canvas');
+          //   const context = canvas.getContext('2d');
+          //   canvas.width = selection.width;
+          //   canvas.height = selection.height;
+
+          //   context?.drawImage(
+          //     image,
+          //     selection?.startX * 2 - window.scrollX * 2,
+          //     selection?.startY * 2 - window.scrollY * 2,
+          //     selection?.width * 2,
+          //     selection?.height * 2,
+          //     0,
+          //     0,
+          //     selection?.width,
+          //     selection?.height
+          //   );
+          image.onload = function () {
             const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
-            canvas.width = selection.width;
-            canvas.height = selection.height;
-
-            context?.drawImage(
+            const ctx = canvas.getContext('2d');
+            const wantedWidth = selection.width * scaleValue;
+            const wantedHeight = selection.height * scaleValue;
+            canvas.width = wantedWidth;
+            canvas.height = wantedHeight;
+            ctx?.drawImage(
               image,
               selection?.startX * 2 - window.scrollX * 2,
               selection?.startY * 2 - window.scrollY * 2,
@@ -118,8 +138,8 @@ const ScreenCapture = () => {
               selection?.height * 2,
               0,
               0,
-              selection?.width,
-              selection?.height
+              wantedWidth,
+              wantedHeight
             );
             const copiedImage = canvas?.toDataURL('image/png');
             convertImageToText(copiedImage);
