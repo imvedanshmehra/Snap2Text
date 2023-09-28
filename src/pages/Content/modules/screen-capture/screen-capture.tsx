@@ -125,7 +125,6 @@ const ScreenCapture = () => {
             convertImageToText(copiedImage);
             setIsMouseUp(true);
           };
-          console.log('screenshotURL=== ', screenshotUrl);
           image.src = await screenshotUrl;
         }
       );
