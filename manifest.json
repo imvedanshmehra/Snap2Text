@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Snap2Text",
+  "name": "Snap2Text - Dev",
   "version": "1.0.0",
   "description": "Extract Text from Images and more.",
   "icons": {
