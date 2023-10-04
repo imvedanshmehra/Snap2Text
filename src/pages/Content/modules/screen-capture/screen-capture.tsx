@@ -181,18 +181,18 @@ const ScreenCapture = () => {
       >
         {!isMouseUp && (
           <div
-            className={`s2t-fixed s2t-top-0 s2t-left-0 s2t-w-full s2t-h-full s2t-bg-black/[.5] s2t-z-[999999] s2t-cursor-crosshair`}
+            className={`s2t-fixed s2t-top-0 s2t-left-0 s2t-w-full s2t-h-full s2t-bg-black/[.5] s2t-z-[999999] s2t-cursor-crosshair s2t-caret-red-100`}
           />
         )}
         {currentMousePosition && !isMouseUp && (
           <div
-            className="s2t-absolute s2t-text-black s2t-cursor-crosshair s2t-z-[999999] s2t-text-shadow-sm s2t-shadow-white"
+            className="s2t-absolute s2t-text-red-600 s2t-cursor-crosshair s2t-caret-red-100 s2t-z-[999999] s2t-text-shadow-sm s2t-shadow-white"
             style={{ ...currentMousePosition }}
           >{`${currentMousePosition.left}/${currentMousePosition.top}`}</div>
         )}
         {selection && !isMouseUp && (
           <div
-            className={`s2t-absolute s2t-border-solid s2t-border-2 s2t-border-white s2t-z-[999999]`}
+            className={`s2t-absolute s2t-border-solid s2t-border-2 s2t-border-red-600 s2t-z-[999999]`}
             style={{
               ...selection,
             }}
