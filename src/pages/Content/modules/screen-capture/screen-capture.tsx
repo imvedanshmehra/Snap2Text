@@ -36,8 +36,8 @@ const ScreenCapture = () => {
 
   const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
     setCurrentMousePosition({
-      left: event.clientX + window.scrollX,
-      top: event.clientY + window.scrollY,
+      left: Math.abs(event.clientX + window.scrollX),
+      top: Math.abs(event.clientY + window.scrollY),
     });
 
     if (!selection) return;
