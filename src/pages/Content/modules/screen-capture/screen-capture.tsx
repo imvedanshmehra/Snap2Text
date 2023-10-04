@@ -48,8 +48,8 @@ const ScreenCapture = () => {
     const width = Math.abs(currentX - selection.startX);
     const height = Math.abs(currentY - selection.startY);
 
-    const left = Math.min(currentX, selection.startX);
-    const top = Math.min(currentY, selection.startY);
+    const left = Math.abs(Math.min(currentX, selection.startX));
+    const top = Math.abs(Math.min(currentY, selection.startY));
 
     setSelection({
       startX: selection.startX,
