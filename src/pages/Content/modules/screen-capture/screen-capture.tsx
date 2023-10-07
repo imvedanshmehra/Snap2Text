@@ -103,6 +103,7 @@ const ScreenCapture = () => {
         async (response) => {
           const screenshotUrl = await response?.screenshotUrl;
           const image = new Image();
+          image.src = await screenshotUrl;
 
           image.onload = function () {
             const canvas = document.createElement('canvas');
@@ -112,10 +113,10 @@ const ScreenCapture = () => {
 
             context?.drawImage(
               image,
-              (selection?.startX - window.scrollX) * 2,
-              (selection?.startY - window.scrollY) * 2,
-              selection?.width * 2,
-              selection?.height * 2,
+              (selection?.startX - window.scrollX) * window?.devicePixelRatio,
+              (selection?.startY - window.scrollY) * window?.devicePixelRatio,
+              selection?.width * window?.devicePixelRatio,
+              selection?.height * window?.devicePixelRatio,
               0,
               0,
               selection?.width,
@@ -125,7 +126,6 @@ const ScreenCapture = () => {
             convertImageToText(copiedImage);
             setIsMouseUp(true);
           };
-          image.src = await screenshotUrl;
         }
       );
     }
