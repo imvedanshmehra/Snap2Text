@@ -214,7 +214,26 @@ const ScreenCapture = () => {
         width="650px"
         className="s2t-absolute s2t-right-0 s2t-top-auto s2t-bottom-0"
       >
-        {!isLoading && ocr?.text ? (
+        {isLoading && (
+          <div className="s2t-mb-4">
+            <Spin indicator={loadingIcon} />
+          </div>
+        )}
+        {!isLoading && !ocr?.text ? (
+          <div className="s2t-flex s2t-items-center">
+            <p className="s2t-mr-2">Something went wrong! Please try again</p>
+            <Tooltip
+              title={'Re-Capture'}
+              placement="bottom"
+              className="s2t-mb-1"
+            >
+              <Button
+                type="default"
+                icon={<ReloadOutlined onClick={onRecapture} />}
+              />
+            </Tooltip>
+          </div>
+        ) : (
           <>
             <div className="s2t-flex">
               <textarea
@@ -230,7 +249,7 @@ const ScreenCapture = () => {
                   <Button
                     type="default"
                     icon={isTextCopied ? <CheckOutlined /> : <CopyOutlined />}
-                    onClick={() => handleCopyClick(ocr?.text)}
+                    onClick={() => handleCopyClick(ocr?.text!)}
                   />
                 </Tooltip>
                 <Tooltip
@@ -261,10 +280,6 @@ const ScreenCapture = () => {
               </div>
             </div>
           </>
-        ) : (
-          <div className="s2t-mt-4">
-            <Spin indicator={loadingIcon} />
-          </div>
         )}
       </Modal>
     </>

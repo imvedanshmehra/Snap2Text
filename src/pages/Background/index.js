@@ -1,25 +1,7 @@
-import ExtPay from 'extpay';
-
-const extpay = ExtPay('snap2text-prod');
-extpay.startBackground();
-
-const now = new Date();
-const threeDays = 1000 * 60 * 60 * 24 * 3; // Three days in milliseconds;
-
 chrome?.action?.onClicked.addListener((tab) => {
-  extpay?.getUser()?.then((user) => {
-    if (
-      user?.paid ||
-      (user.trialStartedAt && now - user.trialStartedAt < threeDays)
-    ) {
-      chrome?.scripting?.executeScript({
-        target: { tabId: tab.id },
-        files: ['contentScript.bundle.js'],
-      });
-      chrome?.action?.setPopup({ popup: '' });
-    } else {
-      chrome?.action?.setPopup({ popup: 'popup.html' });
-    }
+  chrome?.scripting?.executeScript({
+    target: { tabId: tab.id },
+    files: ['contentScript.bundle.js'],
   });
 });
 

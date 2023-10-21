@@ -1,9 +1,6 @@
 import { Button } from 'antd';
 import React from 'react';
-import ExtPay from 'extpay';
 import '../index.styles.css';
-
-const extpay = ExtPay('snap2text-prod');
 
 const Popup = () => {
   return (
@@ -12,15 +9,7 @@ const Popup = () => {
       <p className="s2t-text-base">
         Hi 👋 Welcome to <b>Snap2Text!</b>
       </p>
-      <Button
-        type="primary"
-        onClick={() => {
-          chrome?.action?.setPopup({ popup: '' });
-          extpay.openTrialPage('3 Days');
-        }}
-      >
-        Start your Free 3 days Trial
-      </Button>
+      <Button type="primary">Start Converting Image to Text</Button>
     </div>
   );
 };
